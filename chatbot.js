@@ -1,12 +1,48 @@
 const chatLog = document.getElementById('chat-log');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
+const widgetToggle = document.getElementById('chat-widget-toggle');
+const widgetPanel = document.getElementById('chat-widget-panel');
+const widgetClose = document.getElementById('chat-widget-close');
+const quickActions = document.getElementById('quick-actions');
+const assistantStatus = document.getElementById('assistant-status');
+
+const SITEMAP_SOURCES = [
+  'https://www.spartanburgregional.com/default/sitemap.xml?page=1',
+  'https://www.spartanburgregional.com/default/sitemap.xml?page=2',
+];
+
+const QUICK_ACTIONS = [
+  'Find a doctor',
+  'Urgent care hours',
+  'Pay my bill',
+  'Medical records',
+  'Hospital locations',
+];
 
 const serviceDirectory = [
   {
     intent: 'primary care',
     keywords: ['primary care', 'family doctor', 'new patient', 'annual checkup'],
     response:
+      'For Primary Care, start here. I can also help you find nearby providers.',
+    links: [
+      {
+        label: 'Primary Care Services',
+        url: 'https://www.spartanburgregional.com/services/primary-care',
+      },
+    ],
+  },
+  {
+    intent: 'urgent care',
+    keywords: ['urgent care', 'walk in', 'same day', 'minor injury', 'hours'],
+    response: 'For non-life-threatening issues, these urgent care resources are best.',
+    links: [
+      {
+        label: 'Urgent Care Services',
+        url: 'https://www.spartanburgregional.com/services/urgent-care',
+      },
+    ],
       'For Primary Care, start here: https://www.spartanburgregional.com/services/primary-care\n\nIf you need help choosing a provider, call 864-560-6855.',
   },
   {
@@ -18,30 +54,65 @@ const serviceDirectory = [
   {
     intent: 'find a doctor',
     keywords: ['find a doctor', 'provider', 'specialist', 'physician'],
+    response: 'You can search providers by specialty and location here.',
+    links: [
+      {
+        label: 'Find a Doctor',
+        url: 'https://www.spartanburgregional.com/find-a-doctor',
+      },
+    ],
     response:
       'Use Find a Doctor to search by specialty, location, and availability: https://www.spartanburgregional.com/find-a-doctor',
   },
   {
     intent: 'appointments',
     keywords: ['appointment', 'schedule', 'book visit', 'reschedule'],
+    response: 'Use these resources to schedule or manage appointments.',
+    links: [
+      {
+        label: 'Patients & Visitors',
+        url: 'https://www.spartanburgregional.com/patients-and-visitors',
+      },
+    ],
     response:
       'To schedule or manage appointments, go to: https://www.spartanburgregional.com/patients-and-visitors\n\nFor direct support, call 864-560-6855.',
   },
   {
     intent: 'billing',
     keywords: ['bill', 'billing', 'payment', 'insurance'],
+    response: 'Billing and insurance support is available at this page.',
+    links: [
+      {
+        label: 'Billing Support',
+        url: 'https://www.spartanburgregional.com/patients-and-visitors/billing',
+      },
+    ],
     response:
       'Billing and insurance support is available here: https://www.spartanburgregional.com/patients-and-visitors/billing',
   },
   {
     intent: 'medical records',
     keywords: ['medical records', 'records', 'mychart', 'portal'],
+    response: 'Use this page for portal access and records requests.',
+    links: [
+      {
+        label: 'Medical Records',
+        url: 'https://www.spartanburgregional.com/patients-and-visitors/medical-records',
+      },
+    ],
     response:
       'For portal access and records requests, start at: https://www.spartanburgregional.com/patients-and-visitors/medical-records',
   },
   {
     intent: 'locations',
     keywords: ['location', 'hospital address', 'directions', 'campus map'],
+    response: 'Here are locations, maps, and directions.',
+    links: [
+      {
+        label: 'All Locations',
+        url: 'https://www.spartanburgregional.com/locations',
+      },
+    ],
     response:
       'Find facilities, directions, and maps: https://www.spartanburgregional.com/locations',
   },
@@ -58,6 +129,70 @@ const emergencyKeywords = [
   'heart attack',
 ];
 
+let sitemapIndex = [];
+
+init();
+
+async function init() {
+  renderQuickActions(QUICK_ACTIONS);
+
+  addBotMessage({
+    text:
+      'Hi! I\'m your Spartanburg Regional virtual information desk. Ask me about appointments, urgent care, billing, records, or provider lookup.\n\nIf this is a medical emergency, call 911 right away.',
+  });
+
+  sitemapIndex = await buildSitemapIndex();
+
+  assistantStatus.textContent =
+    sitemapIndex.length > 0
+      ? `Website index ready · ${sitemapIndex.length} pages available`
+      : 'Website index unavailable right now · using core service guidance';
+
+  widgetToggle.addEventListener('click', () => {
+    const isHidden = widgetPanel.hasAttribute('hidden');
+    if (isHidden) {
+      openWidget();
+      return;
+    }
+    closeWidget();
+  });
+
+  widgetClose.addEventListener('click', () => {
+    closeWidget();
+  });
+
+  chatForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = chatInput.value.trim();
+
+    if (!input) {
+      return;
+    }
+
+    addUserMessage(input);
+    chatInput.value = '';
+
+    const typingNode = showTypingIndicator();
+    await sleep(260);
+
+    const response = routeQuestion(input);
+    typingNode.remove();
+    addBotMessage(response);
+  });
+}
+
+function openWidget() {
+  widgetPanel.removeAttribute('hidden');
+  widgetToggle.setAttribute('aria-expanded', 'true');
+  widgetToggle.setAttribute('hidden', '');
+  chatInput.focus();
+}
+
+function closeWidget() {
+  widgetPanel.setAttribute('hidden', '');
+  widgetToggle.removeAttribute('hidden');
+  widgetToggle.setAttribute('aria-expanded', 'false');
+}
 addBotMessage(
   'Hi! I\'m the Spartanburg Regional virtual information desk. I can help you find services, contact paths, and website resources.\n\nIf this is a medical emergency, call 911 right now.'
 );
@@ -81,6 +216,16 @@ function routeQuestion(message) {
   const normalized = message.toLowerCase();
 
   if (emergencyKeywords.some((term) => normalized.includes(term))) {
+    return {
+      text:
+        'Your message sounds urgent. If you think this could be an emergency, call 911 immediately or go to the nearest emergency department.',
+      links: [
+        {
+          label: 'Emergency Care Services',
+          url: 'https://www.spartanburgregional.com/services/emergency-care',
+        },
+      ],
+    };
     return (
       'Your message sounds urgent. If you think this could be an emergency, call 911 immediately or go to the nearest emergency department.\n\nSpartanburg Regional emergency services: https://www.spartanburgregional.com/services/emergency-care'
     );
@@ -91,6 +236,209 @@ function routeQuestion(message) {
   );
 
   if (matchedIntent) {
+    return {
+      text: matchedIntent.response,
+      links: matchedIntent.links,
+    };
+  }
+
+  const sitemapMatches = findSitemapMatches(normalized, 4);
+  if (sitemapMatches.length > 0) {
+    return {
+      text: 'I searched your sitemap and found these pages that look relevant:',
+      links: sitemapMatches.map((entry) => ({
+        label: entry.title,
+        url: entry.url,
+      })),
+    };
+  }
+
+  return {
+    text:
+      'I can help with finding a doctor, primary care, urgent care, appointments, billing, records, and locations. You can also use the quick actions above.',
+  };
+}
+
+async function buildSitemapIndex() {
+  const sourceResults = await Promise.all(
+    SITEMAP_SOURCES.map(async (url) => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          return [];
+        }
+
+        const xmlText = await response.text();
+        return extractSitemapEntries(xmlText);
+      } catch {
+        return [];
+      }
+    })
+  );
+
+  const merged = sourceResults.flat();
+  const dedupe = new Map();
+
+  merged.forEach((entry) => {
+    dedupe.set(entry.url, entry);
+  });
+
+  return [...dedupe.values()];
+}
+
+function extractSitemapEntries(xmlText) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+  const nodes = [...xmlDoc.querySelectorAll('urlset > url > loc')];
+
+  return nodes
+    .map((node) => node.textContent?.trim())
+    .filter(Boolean)
+    .map((url) => {
+      const title = humanizeUrl(url);
+      return {
+        title,
+        url,
+        keywords: tokenizeUrl(url, title),
+      };
+    });
+}
+
+function tokenizeUrl(url, title) {
+  const path = new URL(url).pathname.toLowerCase();
+  const titleTokens = title.toLowerCase().split(/\s+/);
+
+  return [...path.split(/[\/_-]/), ...titleTokens].filter((token) => token.length > 2);
+}
+
+function humanizeUrl(url) {
+  const path = new URL(url).pathname;
+  const slug = path.split('/').filter(Boolean).pop() ?? 'Website page';
+
+  return slug
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function findSitemapMatches(query, limit = 4) {
+  const tokens = query.split(/\s+/).filter((token) => token.length > 2);
+
+  if (tokens.length === 0 || sitemapIndex.length === 0) {
+    return [];
+  }
+
+  const scored = sitemapIndex
+    .map((entry) => {
+      const score = tokens.reduce((total, token) => {
+        if (entry.keywords.includes(token)) {
+          return total + 2;
+        }
+        if (entry.keywords.some((keyword) => keyword.includes(token))) {
+          return total + 1;
+        }
+        return total;
+      }, 0);
+
+      return { ...entry, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, limit);
+}
+
+function addUserMessage(text) {
+  addMessage({ text }, 'user');
+}
+
+function addBotMessage(payload) {
+  addMessage(payload, 'bot');
+}
+
+function addMessage(payload, role) {
+  const messageNode = document.createElement('div');
+  messageNode.className = `message ${role}`;
+
+  const textNode = document.createElement('div');
+  textNode.innerHTML = linkify(escapeHtml(payload.text ?? ''));
+  messageNode.appendChild(textNode);
+
+  if (Array.isArray(payload.links) && payload.links.length > 0) {
+    const linkStack = document.createElement('div');
+    linkStack.className = 'link-stack';
+
+    payload.links.forEach((link) => {
+      const anchor = document.createElement('a');
+      anchor.className = 'link-chip';
+      anchor.href = link.url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = `↗ ${link.label}`;
+      linkStack.appendChild(anchor);
+    });
+
+    messageNode.appendChild(linkStack);
+  }
+
+  const metaNode = document.createElement('small');
+  metaNode.className = 'message-meta';
+  metaNode.textContent = new Date().toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  messageNode.appendChild(metaNode);
+
+  chatLog.appendChild(messageNode);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const typing = document.createElement('div');
+  typing.className = 'message bot typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+
+  chatLog.appendChild(typing);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  return typing;
+}
+
+function renderQuickActions(items) {
+  quickActions.innerHTML = '';
+
+  items.forEach((label) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.addEventListener('click', () => {
+      chatInput.value = label;
+      chatForm.requestSubmit();
+    });
+    quickActions.appendChild(button);
+  });
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function escapeHtml(text) {
+  const escaped = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (symbol) => escaped[symbol]);
+}
+
+function linkify(text) {
+  return text.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
     return matchedIntent.response;
   }
 
