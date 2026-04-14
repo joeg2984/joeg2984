@@ -22,6 +22,23 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080`.
 
+## Netlify deployment notes
+
+- The widget now uses a Netlify Function proxy at `/.netlify/functions/sitemap?page=1|2` to avoid browser CORS issues when fetching sitemap XML.
+- Function source is in `netlify/functions/sitemap.js`.
+- Front-end still includes direct sitemap URL fallback, but Netlify function routes are preferred.
+
+## Sitemap integration used by the widget
+
+The chatbot attempts to index these pages at startup:
+
+1. `/.netlify/functions/sitemap?page=1`
+2. `/.netlify/functions/sitemap?page=2`
+3. `https://www.spartanburgregional.com/default/sitemap.xml?page=1`
+4. `https://www.spartanburgregional.com/default/sitemap.xml?page=2`
+
+When a question does not match a hard-coded intent, the bot scores sitemap pages by query token overlap and returns top matches.
+
 ## Sitemap integration used by the widget
 
 The chatbot attempts to index these sitemap pages at startup:
@@ -50,6 +67,8 @@ When a question does not match a hard-coded intent, the bot scores sitemap pages
 
 - `index.html` — Floating widget markup and chat shell.
 - `styles.css` — Widget/button styling and modern UX visual components.
+- `chatbot.js` — Intent routing, safety handling, widget controls, clickable links, quick actions, typing indicator, sitemap indexing, and legacy-shell cleanup.
+- `netlify/functions/sitemap.js` — Server-side sitemap proxy for Netlify deployments.
 - `chatbot.js` — Intent routing, safety handling, widget controls, clickable links, quick actions, typing indicator, and sitemap indexing.
 - `index.html` — Chat layout and copy.
 - `styles.css` — Styles for the experience.

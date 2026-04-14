@@ -57,44 +57,6 @@
         <button type="submit">Send</button>
       </form>
     </section>
-          A starter chatbot experience for helping visitors find services,
-          contact points, and next steps.
-        </p>
-      </header>
-
-      <section class="chat-shell" aria-label="Chat interface">
-        <div id="chat-log" class="chat-log" aria-live="polite"></div>
-        <form id="chat-form" class="chat-form">
-          <label for="chat-input" class="sr-only">Ask a question</label>
-          <input
-            id="chat-input"
-            name="chatInput"
-            type="text"
-            placeholder="Ask about appointments, urgent care, billing, records, and more..."
-            required
-          />
-          <button type="submit">Send</button>
-        </form>
-      </section>
-
-      <section class="notes">
-        <h2>Implementation notes</h2>
-        <ul>
-          <li>
-            This demo uses deterministic intent matching as a safe baseline
-            for health-system website support.
-          </li>
-          <li>
-            It includes a clinical safety guardrail: emergency symptoms are
-            redirected to 911 and emergency care.
-          </li>
-          <li>
-            Replace placeholder links with live Spartanburg Regional pages and
-            optionally connect a real LLM endpoint.
-          </li>
-        </ul>
-      </section>
-    </main>
 
     <script src="chatbot.js"></script>
   </body>

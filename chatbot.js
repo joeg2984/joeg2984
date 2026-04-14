@@ -1,13 +1,16 @@
-const chatLog = document.getElementById('chat-log');
-const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
-const widgetToggle = document.getElementById('chat-widget-toggle');
 const widgetPanel = document.getElementById('chat-widget-panel');
+const widgetToggle = document.getElementById('chat-widget-toggle');
 const widgetClose = document.getElementById('chat-widget-close');
-const quickActions = document.getElementById('quick-actions');
 const assistantStatus = document.getElementById('assistant-status');
 
+const chatLog = widgetPanel?.querySelector('#chat-log');
+const chatForm = widgetPanel?.querySelector('#chat-form');
+const chatInput = widgetPanel?.querySelector('#chat-input');
+const quickActions = widgetPanel?.querySelector('#quick-actions');
+
 const SITEMAP_SOURCES = [
+  '/.netlify/functions/sitemap?page=1',
+  '/.netlify/functions/sitemap?page=2',
   'https://www.spartanburgregional.com/default/sitemap.xml?page=1',
   'https://www.spartanburgregional.com/default/sitemap.xml?page=2',
 ];
@@ -22,133 +25,61 @@ const QUICK_ACTIONS = [
 
 const serviceDirectory = [
   {
-    intent: 'primary care',
     keywords: ['primary care', 'family doctor', 'new patient', 'annual checkup'],
-    response:
-      'For Primary Care, start here. I can also help you find nearby providers.',
-    links: [
-      {
-        label: 'Primary Care Services',
-        url: 'https://www.spartanburgregional.com/services/primary-care',
-      },
-    ],
+    response: 'For Primary Care, start here. I can also help you find nearby providers.',
+    links: [{ label: 'Primary Care Services', url: 'https://www.spartanburgregional.com/services/primary-care' }],
   },
   {
-    intent: 'urgent care',
     keywords: ['urgent care', 'walk in', 'same day', 'minor injury', 'hours'],
     response: 'For non-life-threatening issues, these urgent care resources are best.',
-    links: [
-      {
-        label: 'Urgent Care Services',
-        url: 'https://www.spartanburgregional.com/services/urgent-care',
-      },
-    ],
-      'For Primary Care, start here: https://www.spartanburgregional.com/services/primary-care\n\nIf you need help choosing a provider, call 864-560-6855.',
+    links: [{ label: 'Urgent Care Services', url: 'https://www.spartanburgregional.com/services/urgent-care' }],
   },
   {
-    intent: 'urgent care',
-    keywords: ['urgent care', 'walk in', 'same day', 'minor injury'],
-    response:
-      'For non-life-threatening needs, visit Urgent Care options: https://www.spartanburgregional.com/services/urgent-care\n\nYou can check locations and hours on that page.',
-  },
-  {
-    intent: 'find a doctor',
     keywords: ['find a doctor', 'provider', 'specialist', 'physician'],
     response: 'You can search providers by specialty and location here.',
-    links: [
-      {
-        label: 'Find a Doctor',
-        url: 'https://www.spartanburgregional.com/find-a-doctor',
-      },
-    ],
-    response:
-      'Use Find a Doctor to search by specialty, location, and availability: https://www.spartanburgregional.com/find-a-doctor',
+    links: [{ label: 'Find a Doctor', url: 'https://www.spartanburgregional.com/find-a-doctor' }],
   },
   {
-    intent: 'appointments',
     keywords: ['appointment', 'schedule', 'book visit', 'reschedule'],
     response: 'Use these resources to schedule or manage appointments.',
-    links: [
-      {
-        label: 'Patients & Visitors',
-        url: 'https://www.spartanburgregional.com/patients-and-visitors',
-      },
-    ],
-    response:
-      'To schedule or manage appointments, go to: https://www.spartanburgregional.com/patients-and-visitors\n\nFor direct support, call 864-560-6855.',
+    links: [{ label: 'Patients & Visitors', url: 'https://www.spartanburgregional.com/patients-and-visitors' }],
   },
   {
-    intent: 'billing',
     keywords: ['bill', 'billing', 'payment', 'insurance'],
     response: 'Billing and insurance support is available at this page.',
-    links: [
-      {
-        label: 'Billing Support',
-        url: 'https://www.spartanburgregional.com/patients-and-visitors/billing',
-      },
-    ],
-    response:
-      'Billing and insurance support is available here: https://www.spartanburgregional.com/patients-and-visitors/billing',
+    links: [{ label: 'Billing Support', url: 'https://www.spartanburgregional.com/patients-and-visitors/billing' }],
   },
   {
-    intent: 'medical records',
     keywords: ['medical records', 'records', 'mychart', 'portal'],
     response: 'Use this page for portal access and records requests.',
-    links: [
-      {
-        label: 'Medical Records',
-        url: 'https://www.spartanburgregional.com/patients-and-visitors/medical-records',
-      },
-    ],
-    response:
-      'For portal access and records requests, start at: https://www.spartanburgregional.com/patients-and-visitors/medical-records',
+    links: [{ label: 'Medical Records', url: 'https://www.spartanburgregional.com/patients-and-visitors/medical-records' }],
   },
   {
-    intent: 'locations',
     keywords: ['location', 'hospital address', 'directions', 'campus map'],
     response: 'Here are locations, maps, and directions.',
-    links: [
-      {
-        label: 'All Locations',
-        url: 'https://www.spartanburgregional.com/locations',
-      },
-    ],
-    response:
-      'Find facilities, directions, and maps: https://www.spartanburgregional.com/locations',
+    links: [{ label: 'All Locations', url: 'https://www.spartanburgregional.com/locations' }],
   },
 ];
 
-const emergencyKeywords = [
-  'chest pain',
-  'stroke',
-  'cant breathe',
-  'can\'t breathe',
-  'suicidal',
-  'overdose',
-  'severe bleeding',
-  'heart attack',
-];
+const emergencyKeywords = ['chest pain', 'stroke', 'cant breathe', "can't breathe", 'suicidal', 'overdose', 'severe bleeding', 'heart attack'];
 
 let sitemapIndex = [];
 
-init();
+bootstrap();
 
-async function init() {
+function bootstrap() {
+  if (!widgetPanel || !chatLog || !chatForm || !chatInput || !quickActions) {
+    return;
+  }
+
+  removeLegacyChatShell();
   renderQuickActions(QUICK_ACTIONS);
 
   addBotMessage({
-    text:
-      'Hi! I\'m your Spartanburg Regional virtual information desk. Ask me about appointments, urgent care, billing, records, or provider lookup.\n\nIf this is a medical emergency, call 911 right away.',
+    text: 'Hi! I\'m your Spartanburg Regional virtual information desk. Ask me about appointments, urgent care, billing, records, or provider lookup.\n\nIf this is a medical emergency, call 911 right away.',
   });
 
-  sitemapIndex = await buildSitemapIndex();
-
-  assistantStatus.textContent =
-    sitemapIndex.length > 0
-      ? `Website index ready · ${sitemapIndex.length} pages available`
-      : 'Website index unavailable right now · using core service guidance';
-
-  widgetToggle.addEventListener('click', () => {
+  widgetToggle?.addEventListener('click', () => {
     const isHidden = widgetPanel.hasAttribute('hidden');
     if (isHidden) {
       openWidget();
@@ -157,14 +88,13 @@ async function init() {
     closeWidget();
   });
 
-  widgetClose.addEventListener('click', () => {
+  widgetClose?.addEventListener('click', () => {
     closeWidget();
   });
 
   chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const input = chatInput.value.trim();
-
     if (!input) {
       return;
     }
@@ -173,62 +103,58 @@ async function init() {
     chatInput.value = '';
 
     const typingNode = showTypingIndicator();
-    await sleep(260);
-
+    await sleep(220);
     const response = routeQuestion(input);
     typingNode.remove();
     addBotMessage(response);
   });
+
+  hydrateSitemapIndex();
+}
+
+function removeLegacyChatShell() {
+  const legacyShell = document.querySelector('.chat-shell');
+  if (legacyShell) {
+    legacyShell.remove();
+  }
+}
+
+async function hydrateSitemapIndex() {
+  if (assistantStatus) {
+    assistantStatus.textContent = 'Loading website index…';
+  }
+
+  sitemapIndex = await buildSitemapIndex();
+
+  if (assistantStatus) {
+    assistantStatus.textContent =
+      sitemapIndex.length > 0
+        ? `Website index ready · ${sitemapIndex.length} pages available`
+        : 'Website index unavailable right now · using core service guidance';
+  }
 }
 
 function openWidget() {
   widgetPanel.removeAttribute('hidden');
-  widgetToggle.setAttribute('aria-expanded', 'true');
-  widgetToggle.setAttribute('hidden', '');
+  widgetToggle?.setAttribute('aria-expanded', 'true');
+  widgetToggle?.setAttribute('hidden', '');
   chatInput.focus();
 }
 
 function closeWidget() {
   widgetPanel.setAttribute('hidden', '');
-  widgetToggle.removeAttribute('hidden');
-  widgetToggle.setAttribute('aria-expanded', 'false');
+  widgetToggle?.removeAttribute('hidden');
+  widgetToggle?.setAttribute('aria-expanded', 'false');
 }
-addBotMessage(
-  'Hi! I\'m the Spartanburg Regional virtual information desk. I can help you find services, contact paths, and website resources.\n\nIf this is a medical emergency, call 911 right now.'
-);
-
-chatForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const input = chatInput.value.trim();
-
-  if (!input) {
-    return;
-  }
-
-  addUserMessage(input);
-  chatInput.value = '';
-
-  const response = routeQuestion(input);
-  addBotMessage(response);
-});
 
 function routeQuestion(message) {
   const normalized = message.toLowerCase();
 
   if (emergencyKeywords.some((term) => normalized.includes(term))) {
     return {
-      text:
-        'Your message sounds urgent. If you think this could be an emergency, call 911 immediately or go to the nearest emergency department.',
-      links: [
-        {
-          label: 'Emergency Care Services',
-          url: 'https://www.spartanburgregional.com/services/emergency-care',
-        },
-      ],
+      text: 'Your message sounds urgent. If you think this could be an emergency, call 911 immediately or go to the nearest emergency department.',
+      links: [{ label: 'Emergency Care Services', url: 'https://www.spartanburgregional.com/services/emergency-care' }],
     };
-    return (
-      'Your message sounds urgent. If you think this could be an emergency, call 911 immediately or go to the nearest emergency department.\n\nSpartanburg Regional emergency services: https://www.spartanburgregional.com/services/emergency-care'
-    );
   }
 
   const matchedIntent = serviceDirectory.find(({ keywords }) =>
@@ -246,44 +172,43 @@ function routeQuestion(message) {
   if (sitemapMatches.length > 0) {
     return {
       text: 'I searched your sitemap and found these pages that look relevant:',
-      links: sitemapMatches.map((entry) => ({
-        label: entry.title,
-        url: entry.url,
-      })),
+      links: sitemapMatches.map((entry) => ({ label: entry.title, url: entry.url })),
     };
   }
 
   return {
-    text:
-      'I can help with finding a doctor, primary care, urgent care, appointments, billing, records, and locations. You can also use the quick actions above.',
+    text: 'I can help with finding a doctor, primary care, urgent care, appointments, billing, records, and locations. You can also use the quick actions above.',
   };
 }
 
 async function buildSitemapIndex() {
-  const sourceResults = await Promise.all(
-    SITEMAP_SOURCES.map(async (url) => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          return [];
-        }
+  const sourceResults = await Promise.all(SITEMAP_SOURCES.map((url) => fetchSitemapEntries(url)));
 
-        const xmlText = await response.text();
-        return extractSitemapEntries(xmlText);
-      } catch {
-        return [];
-      }
-    })
-  );
-
-  const merged = sourceResults.flat();
   const dedupe = new Map();
-
-  merged.forEach((entry) => {
+  sourceResults.flat().forEach((entry) => {
     dedupe.set(entry.url, entry);
   });
 
   return [...dedupe.values()];
+}
+
+async function fetchSitemapEntries(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) {
+      return [];
+    }
+
+    const xmlText = await response.text();
+    return extractSitemapEntries(xmlText);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function extractSitemapEntries(xmlText) {
@@ -307,7 +232,6 @@ function extractSitemapEntries(xmlText) {
 function tokenizeUrl(url, title) {
   const path = new URL(url).pathname.toLowerCase();
   const titleTokens = title.toLowerCase().split(/\s+/);
-
   return [...path.split(/[\/_-]/), ...titleTokens].filter((token) => token.length > 2);
 }
 
@@ -382,10 +306,7 @@ function addMessage(payload, role) {
 
   const metaNode = document.createElement('small');
   metaNode.className = 'message-meta';
-  metaNode.textContent = new Date().toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  metaNode.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   messageNode.appendChild(metaNode);
 
   chatLog.appendChild(messageNode);
@@ -439,26 +360,4 @@ function linkify(text) {
   return text.replace(/(https?:\/\/[^\s]+)/g, (url) => {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
-    return matchedIntent.response;
-  }
-
-  return (
-    'I can help with: finding a doctor, primary care, urgent care, appointments, billing, records, and locations.\n\nTry asking, “How do I find an urgent care near me?” or “How do I pay my bill?”'
-  );
-}
-
-function addUserMessage(text) {
-  addMessage(text, 'user');
-}
-
-function addBotMessage(text) {
-  addMessage(text, 'bot');
-}
-
-function addMessage(text, role) {
-  const message = document.createElement('div');
-  message.className = `message ${role}`;
-  message.textContent = text;
-  chatLog.appendChild(message);
-  chatLog.scrollTop = chatLog.scrollHeight;
 }
