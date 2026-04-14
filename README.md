@@ -5,11 +5,8 @@ This repository contains a lightweight, front-end chatbot prototype designed for
 ## What it does
 
 - Offers a website "information desk" for common health-system navigation questions.
-- Uses a floating chat widget button in the lower-right so users can open/close chat from any page.
 - Routes people to likely service lines (primary care, urgent care, records, billing, locations, etc.).
 - Adds an emergency guardrail that redirects urgent symptom language to 911/emergency care.
-- Renders suggested website links as clickable links in bot responses.
-- Loads and indexes sitemap pages so fallback answers can recommend real pages based on the user's question.
 
 ## Run locally
 
@@ -19,18 +16,9 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080`.
 
-## Sitemap integration used by the widget
-
-The chatbot attempts to index these sitemap pages at startup:
-
-- `https://www.spartanburgregional.com/default/sitemap.xml?page=1`
-- `https://www.spartanburgregional.com/default/sitemap.xml?page=2`
-
-When a question does not match a hard-coded intent, the bot returns top sitemap-based page suggestions.
-
 ## Production integration options
 
-1. Embed this UI in your Netlify-hosted page template or inject it as a shared site component.
+1. Start by embedding this UI into a dedicated page like `/virtual-assistant`.
 2. Replace placeholder links and phone numbers with official, validated content owners.
 3. Optionally replace the deterministic routing with:
    - A retrieval layer over approved SRHS web content.
@@ -40,6 +28,6 @@ When a question does not match a hard-coded intent, the bot returns top sitemap-
 
 ## Files
 
-- `index.html` — Floating widget markup and chat shell.
-- `styles.css` — Widget/button styling.
-- `chatbot.js` — Intent routing logic, safety handling, widget open/close behavior, clickable link rendering, and sitemap indexing.
+- `index.html` — Chat layout and copy.
+- `styles.css` — Styles for the experience.
+- `chatbot.js` — Intent routing logic and safety handling.
