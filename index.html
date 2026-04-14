@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spartanburg Regional Virtual Information Desk</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1>Spartanburg Regional Virtual Information Desk</h1>
+        <p>
+          Click the chat button in the bottom-right corner to ask about
+          appointments, urgent care, billing, records, and more.
+        </p>
+      </header>
+    </main>
+
+    <button
+      id="chat-widget-toggle"
+      class="chat-widget-toggle"
+      type="button"
+      aria-controls="chat-widget-panel"
+      aria-expanded="false"
+    >
+      💬 Chat with us
+    </button>
+
+    <section
+      id="chat-widget-panel"
+      class="chat-widget-panel"
+      aria-label="Spartanburg Regional chat assistant"
+      hidden
+    >
+      <header class="widget-header">
+        <h2>Virtual Information Desk</h2>
+        <button id="chat-widget-close" type="button" aria-label="Close chat">×</button>
+      </header>
+
+      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+      <form id="chat-form" class="chat-form">
+        <label for="chat-input" class="sr-only">Ask a question</label>
+        <input
+          id="chat-input"
+          name="chatInput"
+          type="text"
+          placeholder="Try: How do I pay my bill?"
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+    <script src="chatbot.js"></script>
+  </body>
+</html>
