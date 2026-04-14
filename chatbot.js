@@ -96,11 +96,13 @@ chatForm.addEventListener('submit', (event) => {
 function openWidget() {
   widgetPanel.removeAttribute('hidden');
   widgetToggle.setAttribute('aria-expanded', 'true');
+  widgetToggle.setAttribute('hidden', '');
   chatInput.focus();
 }
 
 function closeWidget() {
   widgetPanel.setAttribute('hidden', '');
+  widgetToggle.removeAttribute('hidden');
   widgetToggle.setAttribute('aria-expanded', 'false');
 }
 
