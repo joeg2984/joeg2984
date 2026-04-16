@@ -21,6 +21,11 @@ const QUICK_ACTIONS = [
   'Pay my bill',
   'Medical records',
   'Hospital locations',
+  "Women's services",
+  'Heart care',
+  'Lab and imaging',
+  'Surgery',
+  'Behavioral health',
 ];
 
 const serviceDirectory = [
@@ -59,6 +64,62 @@ const serviceDirectory = [
     response: 'Here are locations, maps, and directions.',
     links: [{ label: 'All Locations', url: 'https://www.spartanburgregional.com/locations' }],
   },
+  {
+    keywords: ['women', 'womens services', 'pregnancy', 'maternity', 'obgyn', 'labor and delivery'],
+    response: "Here are women's and maternity care resources.",
+    links: [{ label: "Women's Services", url: 'https://www.spartanburgregional.com/services/womens-services' }],
+  },
+  {
+    keywords: ['heart', 'cardiology', 'cardiac', 'vascular'],
+    response: 'Heart and vascular specialists can be found here.',
+    links: [{ label: 'Heart & Vascular', url: 'https://www.spartanburgregional.com/services/heart-and-vascular' }],
+  },
+  {
+    keywords: ['cancer', 'oncology', 'tumor', 'chemo', 'radiation'],
+    response: 'Cancer care services are available at these resources.',
+    links: [{ label: 'Cancer Care', url: 'https://www.spartanburgregional.com/services/cancer-care' }],
+  },
+  {
+    keywords: ['orthopedic', 'ortho', 'joint pain', 'sports medicine', 'bone'],
+    response: 'Orthopedic and sports medicine support is available here.',
+    links: [{ label: 'Orthopedics', url: 'https://www.spartanburgregional.com/services/orthopedics' }],
+  },
+  {
+    keywords: ['imaging', 'xray', 'mri', 'ct', 'ultrasound', 'radiology'],
+    response: 'Diagnostic imaging and radiology information is here.',
+    links: [{ label: 'Imaging Services', url: 'https://www.spartanburgregional.com/services/imaging' }],
+  },
+  {
+    keywords: ['lab', 'blood work', 'test results', 'laboratory'],
+    response: 'Laboratory and test-related resources are here.',
+    links: [{ label: 'Laboratory Services', url: 'https://www.spartanburgregional.com/services/laboratory' }],
+  },
+  {
+    keywords: ['rehab', 'physical therapy', 'occupational therapy', 'speech therapy'],
+    response: 'Rehabilitation services can be found here.',
+    links: [{ label: 'Rehabilitation Services', url: 'https://www.spartanburgregional.com/services/rehabilitation' }],
+  },
+  {
+    keywords: ['surgery', 'surgical', 'operation', 'pre-op', 'post-op'],
+    response: 'Surgical care information and preparation resources are available here.',
+    links: [{ label: 'Surgical Services', url: 'https://www.spartanburgregional.com/services/surgery' }],
+  },
+  {
+    keywords: ['mental health', 'behavioral health', 'depression', 'anxiety', 'counseling'],
+    response: 'Behavioral health support and related services are here.',
+    links: [{ label: 'Behavioral Health', url: 'https://www.spartanburgregional.com/services/behavioral-health' }],
+  },
+  {
+    keywords: ['pediatric', 'children', 'child doctor', 'kids care'],
+    response: "Pediatric and children's care resources are available here.",
+    links: [{ label: 'Pediatrics', url: 'https://www.spartanburgregional.com/services/pediatrics' }],
+  },
+  {
+    keywords: ['financial assistance', 'charity care', 'help with bill', 'payment plan'],
+    response: 'Financial assistance and billing support information is here.',
+    links: [{ label: 'Financial Assistance', url: 'https://www.spartanburgregional.com/patients-and-visitors/financial-assistance' }],
+  },
+
 ];
 
 const emergencyKeywords = ['chest pain', 'stroke', 'cant breathe', "can't breathe", 'suicidal', 'overdose', 'severe bleeding', 'heart attack'];
@@ -130,7 +191,7 @@ async function hydrateSitemapIndex() {
   if (assistantStatus) {
     assistantStatus.textContent =
       sitemapIndex.length > 0
-        ? `Website index ready · ${sitemapIndex.length} pages available`
+        ? 'Website index ready'
         : 'Website index unavailable right now · using core service guidance';
   }
 }
@@ -201,7 +262,7 @@ function routeQuestion(message) {
   }
 
   return {
-    text: 'I can help with finding a doctor, primary care, urgent care, appointments, billing, records, and locations. You can also use the quick actions above.',
+    text: "I can help with providers, appointments, urgent care, billing, records, locations, women's services, heart care, imaging, lab work, surgery, rehab, behavioral health, pediatrics, and more. You can also use the quick actions above.",
   };
 }
 

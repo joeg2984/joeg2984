@@ -8,7 +8,7 @@ This repository contains a lightweight, front-end chatbot prototype designed for
 - Uses a floating chat widget button in the lower-right so users can open/close chat from any page.
 - Includes a minimize control in the header so the chat can collapse without disappearing entirely.
 - Includes modern UX touches: quick action chips, typing indicator, timestamped messages, and live website-index status.
-- Routes people to likely service lines (primary care, urgent care, records, billing, locations, etc.).
+- Routes people to a wider set of service lines (primary care, urgent care, records, billing, locations, women's services, heart care, imaging, lab, surgery, rehab, behavioral health, pediatrics, and more).
 - Adds an emergency guardrail that redirects urgent symptom language to 911/emergency care.
 - Returns clickable recommendation chips for every link result.
 - Loads and indexes sitemap pages so fallback answers can recommend real pages based on the user's question.
