@@ -6,13 +6,9 @@ This repository contains a lightweight, front-end chatbot prototype designed for
 
 - Offers a website "information desk" for common health-system navigation questions.
 - Uses a floating chat widget button in the lower-right so users can open/close chat from any page.
-- Includes modern UX touches: quick action chips, typing indicator, timestamped messages, and live website-index status.
 - Routes people to likely service lines (primary care, urgent care, records, billing, locations, etc.).
 - Adds an emergency guardrail that redirects urgent symptom language to 911/emergency care.
-- Returns clickable recommendation chips for every link result.
-- Loads and indexes sitemap pages so fallback answers can recommend real pages based on the user's question.
-- Routes people to likely service lines (primary care, urgent care, records, billing, locations, etc.).
-- Adds an emergency guardrail that redirects urgent symptom language to 911/emergency care.
+- Renders suggested website links as clickable links in bot responses.
 
 ## Run locally
 
@@ -22,40 +18,9 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080`.
 
-## Netlify deployment notes
-
-- The widget now uses a Netlify Function proxy at `/.netlify/functions/sitemap?page=1|2` to avoid browser CORS issues when fetching sitemap XML.
-- Function source is in `netlify/functions/sitemap.js`.
-- Front-end still includes direct sitemap URL fallback, but Netlify function routes are preferred.
-
-## Sitemap integration used by the widget
-
-The chatbot attempts to index these pages at startup:
-
-1. `/.netlify/functions/sitemap?page=1`
-2. `/.netlify/functions/sitemap?page=2`
-3. `https://www.spartanburgregional.com/default/sitemap.xml?page=1`
-4. `https://www.spartanburgregional.com/default/sitemap.xml?page=2`
-
-When a question does not match a hard-coded intent, the bot scores sitemap pages by query token overlap and returns top matches.
-
-## Sitemap integration used by the widget
-
-The chatbot attempts to index these sitemap pages at startup:
-
-- `https://www.spartanburgregional.com/default/sitemap.xml?page=1`
-- `https://www.spartanburgregional.com/default/sitemap.xml?page=2`
-
-When a question does not match a hard-coded intent, the bot scores sitemap pages by query token overlap and returns top matches.
-
 ## Production integration options
 
 1. Embed this UI in your Netlify-hosted page template or inject it as a shared site component.
-2. Replace placeholder links and phone numbers with official, validated content owners.
-3. Optionally replace deterministic routing with:
-## Production integration options
-
-1. Start by embedding this UI into a dedicated page like `/virtual-assistant`.
 2. Replace placeholder links and phone numbers with official, validated content owners.
 3. Optionally replace the deterministic routing with:
    - A retrieval layer over approved SRHS web content.
@@ -66,10 +31,5 @@ When a question does not match a hard-coded intent, the bot scores sitemap pages
 ## Files
 
 - `index.html` — Floating widget markup and chat shell.
-- `styles.css` — Widget/button styling and modern UX visual components.
-- `chatbot.js` — Intent routing, safety handling, widget controls, clickable links, quick actions, typing indicator, sitemap indexing, and legacy-shell cleanup.
-- `netlify/functions/sitemap.js` — Server-side sitemap proxy for Netlify deployments.
-- `chatbot.js` — Intent routing, safety handling, widget controls, clickable links, quick actions, typing indicator, and sitemap indexing.
-- `index.html` — Chat layout and copy.
-- `styles.css` — Styles for the experience.
-- `chatbot.js` — Intent routing logic and safety handling.
+- `styles.css` — Widget/button styling.
+- `chatbot.js` — Intent routing logic, safety handling, widget open/close behavior, and clickable link rendering.

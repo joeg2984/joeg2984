@@ -1,7 +1,7 @@
 :root {
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  color: #0f172a;
-  background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+  color: #1b1f23;
+  background: #f2f6fb;
 }
 
 * {
@@ -10,11 +10,10 @@
 
 body {
   margin: 0;
-  min-height: 100vh;
 }
 
 .page {
-  max-width: 960px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
 }
@@ -26,21 +25,20 @@ body {
 
 .hero p {
   margin-top: 0;
-  color: #334155;
-  max-width: 58ch;
+  color: #3e4a58;
 }
 
 .chat-widget-toggle {
   position: fixed;
-  right: 1.1rem;
-  bottom: 1.1rem;
+  right: 1rem;
+  bottom: 1rem;
   border: none;
   border-radius: 999px;
-  padding: 0.9rem 1.25rem;
-  background: linear-gradient(90deg, #0a4b87, #0966b3);
+  padding: 0.85rem 1.2rem;
+  background: #0a4b87;
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 12px 28px rgba(7, 35, 67, 0.28);
+  box-shadow: 0 8px 24px rgba(7, 35, 67, 0.25);
   cursor: pointer;
   z-index: 1000;
 }
@@ -48,13 +46,13 @@ body {
 .chat-widget-panel {
   position: fixed;
   right: 1rem;
-  bottom: 4.8rem;
-  width: min(95vw, 410px);
-  height: min(78vh, 640px);
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid #d6e2f2;
-  border-radius: 16px;
-  box-shadow: 0 18px 42px rgba(7, 35, 67, 0.22);
+  bottom: 4.5rem;
+  width: min(95vw, 380px);
+  height: min(70vh, 560px);
+  background: #ffffff;
+  border: 1px solid #d7e2ef;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(7, 35, 67, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -63,11 +61,10 @@ body {
 
 .widget-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.9rem 1rem;
-  background: linear-gradient(120deg, #0a4b87, #0f5fa5);
+  padding: 0.75rem 1rem;
+  background: #0a4b87;
   color: white;
 }
 
@@ -76,18 +73,11 @@ body {
   font-size: 1rem;
 }
 
-.assistant-status {
-  margin: 0.2rem 0 0;
-  font-size: 0.78rem;
-  opacity: 0.92;
-}
-
 .widget-header button {
   border: none;
   background: transparent;
   color: white;
   font-size: 1.3rem;
-  line-height: 1;
   cursor: pointer;
 }
 
@@ -101,7 +91,7 @@ body {
 }
 
 .message {
-  max-width: 92%;
+  max-width: 88%;
   border-radius: 12px;
   padding: 0.75rem 0.9rem;
   line-height: 1.4;
@@ -110,8 +100,8 @@ body {
 
 .message.bot {
   align-self: flex-start;
-  background: #f3f8ff;
-  border: 1px solid #cfe0f6;
+  background: #eef5ff;
+  border: 1px solid #c9dcf7;
 }
 
 .message.user {
@@ -120,84 +110,9 @@ body {
   color: white;
 }
 
-.message-meta {
-  display: block;
-  font-size: 0.7rem;
-  opacity: 0.7;
-  margin-top: 0.35rem;
-}
-
-.link-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  margin-top: 0.6rem;
-}
-
-.link-chip {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid #bfd6f3;
-  background: #ffffff;
+.message.bot a {
   color: #0a4b87;
-  border-radius: 10px;
-  padding: 0.45rem 0.6rem;
-  text-decoration: none;
-  font-size: 0.86rem;
   font-weight: 600;
-}
-
-.quick-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  padding: 0.6rem 0.9rem 0.2rem;
-}
-
-.quick-actions button {
-  border: 1px solid #cddcee;
-  background: #f8fbff;
-  color: #17426f;
-  border-radius: 999px;
-  padding: 0.35rem 0.65rem;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.typing {
-  align-self: flex-start;
-  display: inline-flex;
-  gap: 0.25rem;
-  padding: 0.5rem 0.65rem;
-}
-
-.typing span {
-  width: 0.38rem;
-  height: 0.38rem;
-  border-radius: 50%;
-  background: #6b8fb8;
-  animation: blink 1s infinite ease-in-out;
-}
-
-.typing span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes blink {
-  0%,
-  80%,
-  100% {
-    transform: scale(0.75);
-    opacity: 0.4;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 .chat-form {
@@ -210,7 +125,7 @@ body {
 .chat-form input {
   flex: 1;
   font-size: 0.95rem;
-  padding: 0.7rem;
+  padding: 0.65rem;
   border: 1px solid #b8c8db;
   border-radius: 10px;
 }

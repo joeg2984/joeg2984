@@ -11,8 +11,8 @@
       <header class="hero">
         <h1>Spartanburg Regional Virtual Information Desk</h1>
         <p>
-          Modern patient navigation assistant with emergency guardrails,
-          clickable recommendations, and sitemap-powered website search.
+          Click the chat button in the bottom-right corner to ask about
+          appointments, urgent care, billing, records, and more.
         </p>
       </header>
     </main>
@@ -24,7 +24,7 @@
       aria-controls="chat-widget-panel"
       aria-expanded="false"
     >
-      💬 Help Desk
+      💬 Chat with us
     </button>
 
     <section
@@ -34,16 +34,11 @@
       hidden
     >
       <header class="widget-header">
-        <div>
-          <h2>Virtual Information Desk</h2>
-          <p id="assistant-status" class="assistant-status">Connecting website index…</p>
-        </div>
+        <h2>Virtual Information Desk</h2>
         <button id="chat-widget-close" type="button" aria-label="Close chat">×</button>
       </header>
 
       <div id="chat-log" class="chat-log" aria-live="polite"></div>
-
-      <div id="quick-actions" class="quick-actions" aria-label="Quick actions"></div>
 
       <form id="chat-form" class="chat-form">
         <label for="chat-input" class="sr-only">Ask a question</label>
@@ -51,7 +46,7 @@
           id="chat-input"
           name="chatInput"
           type="text"
-          placeholder="Ask about appointments, urgent care, billing, locations…"
+          placeholder="Try: How do I pay my bill?"
           required
         />
         <button type="submit">Send</button>
